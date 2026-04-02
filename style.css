@@ -1,17 +1,17 @@
 :root {
-  --bg: #f4eee1;
-  --surface: rgba(255, 251, 244, 0.82);
-  --surface-strong: #fffaf1;
-  --ink: #24160d;
-  --muted: #6d5a49;
-  --line: rgba(92, 68, 43, 0.12);
-  --accent: #0f8778;
-  --accent-soft: rgba(15, 135, 120, 0.12);
-  --accent-strong: #0c655a;
-  --gold: #dda03e;
-  --sky: #7797ff;
-  --rose: #cf755f;
-  --shadow: 0 24px 70px rgba(70, 48, 25, 0.12);
+  --bg: #07111f;
+  --surface: rgba(14, 24, 44, 0.82);
+  --surface-strong: #132340;
+  --ink: #edf4ff;
+  --muted: #93a7c6;
+  --line: rgba(146, 182, 236, 0.14);
+  --accent: #3d8bfd;
+  --accent-soft: rgba(61, 139, 253, 0.16);
+  --accent-strong: #90bfff;
+  --gold: #f1b75a;
+  --sky: #75a8ff;
+  --rose: #ef8a7c;
+  --shadow: 0 24px 70px rgba(2, 8, 22, 0.42);
   --radius-xl: 28px;
   --radius-lg: 20px;
   --radius-md: 14px;
@@ -27,9 +27,9 @@ body {
   font-family: "Manrope", sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(15, 135, 120, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(221, 160, 62, 0.18), transparent 30%),
-    linear-gradient(180deg, #f8f2e7 0%, #efe4d0 100%);
+    radial-gradient(circle at top left, rgba(61, 139, 253, 0.22), transparent 28%),
+    radial-gradient(circle at top right, rgba(21, 74, 153, 0.28), transparent 30%),
+    linear-gradient(180deg, #08111e 0%, #0d1830 52%, #091423 100%);
 }
 
 button,
@@ -66,14 +66,14 @@ p {
 .panel-flat {
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 251, 244, 0.72);
+  background: rgba(13, 24, 45, 0.78);
   box-shadow: var(--shadow);
 }
 
 .top-banner {
   margin-bottom: 24px;
   padding: 8px 4px 20px;
-  border-bottom: 1px solid rgba(92, 68, 43, 0.12);
+  border-bottom: 1px solid var(--line);
 }
 
 .eyebrow {
@@ -120,7 +120,7 @@ h2 {
 }
 
 .chip.subtle {
-  background: rgba(92, 68, 43, 0.08);
+  background: rgba(146, 182, 236, 0.08);
   color: var(--muted);
 }
 
@@ -198,8 +198,8 @@ textarea,
 select {
   padding: 14px 16px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(92, 68, 43, 0.14);
-  background: rgba(255, 252, 247, 0.94);
+  border: 1px solid rgba(146, 182, 236, 0.18);
+  background: rgba(7, 15, 29, 0.92);
   color: var(--ink);
 }
 
@@ -264,8 +264,8 @@ input[type="range"] {
 .secondary,
 .speed-button,
 .pager-link {
-  background: rgba(255, 251, 244, 0.94);
-  border: 1px solid rgba(92, 68, 43, 0.12);
+  background: rgba(17, 28, 51, 0.94);
+  border: 1px solid rgba(146, 182, 236, 0.14);
   color: var(--ink);
 }
 
@@ -282,8 +282,8 @@ input[type="range"] {
 .metric,
 .weight-item {
   border-radius: 18px;
-  background: rgba(255, 250, 242, 0.95);
-  border: 1px solid rgba(92, 68, 43, 0.09);
+  background: rgba(17, 29, 52, 0.95);
+  border: 1px solid rgba(146, 182, 236, 0.12);
 }
 
 .tip-box,
@@ -308,7 +308,7 @@ input[type="range"] {
   width: 100%;
   height: 10px;
   border-radius: 999px;
-  background: rgba(92, 68, 43, 0.1);
+  background: rgba(146, 182, 236, 0.12);
   overflow: hidden;
 }
 
@@ -324,8 +324,8 @@ input[type="range"] {
   min-height: 620px;
   padding: 20px;
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 252, 247, 0.92), rgba(250, 243, 229, 0.92));
-  border: 1px solid rgba(92, 68, 43, 0.1);
+  background: linear-gradient(180deg, rgba(10, 19, 36, 0.96), rgba(12, 23, 43, 0.96));
+  border: 1px solid rgba(146, 182, 236, 0.12);
 }
 
 .canvas-stack {
@@ -373,8 +373,8 @@ input[type="range"] {
 .visual-card {
   padding: 18px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(92, 68, 43, 0.09);
+  background: rgba(17, 29, 52, 0.78);
+  border: 1px solid rgba(146, 182, 236, 0.12);
 }
 
 .card-head {
@@ -388,7 +388,7 @@ input[type="range"] {
 .original-text {
   padding: 18px;
   border-radius: 18px;
-  background: rgba(15, 135, 120, 0.08);
+  background: rgba(61, 139, 253, 0.08);
   line-height: 1.7;
 }
 
@@ -397,8 +397,8 @@ input[type="range"] {
 .candidate-item,
 .legend-chip {
   border-radius: 16px;
-  border: 1px solid rgba(92, 68, 43, 0.1);
-  background: rgba(255, 252, 247, 0.95);
+  border: 1px solid rgba(146, 182, 236, 0.12);
+  background: rgba(11, 21, 40, 0.95);
 }
 
 .source-part {
@@ -439,7 +439,7 @@ input[type="range"] {
 .vocab-table td {
   padding: 10px 12px;
   text-align: left;
-  border-bottom: 1px solid rgba(92, 68, 43, 0.08);
+  border-bottom: 1px solid rgba(146, 182, 236, 0.1);
 }
 
 .vocab-table th {
@@ -454,7 +454,7 @@ input[type="range"] {
   min-height: 340px;
   border-radius: 22px;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(255, 250, 242, 0.9), rgba(253, 244, 228, 0.95));
+  background: linear-gradient(180deg, rgba(14, 26, 49, 0.94), rgba(11, 20, 38, 0.98));
 }
 
 .network-svg {
@@ -465,7 +465,7 @@ input[type="range"] {
 }
 
 .connection {
-  stroke: rgba(92, 68, 43, 0.24);
+  stroke: rgba(146, 182, 236, 0.2);
   stroke-width: 2;
 }
 
@@ -510,8 +510,8 @@ input[type="range"] {
   place-items: center;
   text-align: center;
   padding: 8px;
-  border: 2px solid rgba(92, 68, 43, 0.12);
-  background: rgba(255, 252, 247, 0.95);
+  border: 2px solid rgba(146, 182, 236, 0.14);
+  background: rgba(11, 21, 40, 0.95);
 }
 
 .node.active {
@@ -562,7 +562,7 @@ input[type="range"] {
 .candidate-bar {
   height: 10px;
   border-radius: 999px;
-  background: rgba(92, 68, 43, 0.08);
+  background: rgba(146, 182, 236, 0.1);
   overflow: hidden;
 }
 
@@ -608,7 +608,7 @@ input[type="range"] {
   gap: 16px;
   margin-top: 24px;
   padding-top: 18px;
-  border-top: 1px solid rgba(92, 68, 43, 0.12);
+  border-top: 1px solid var(--line);
 }
 
 .pager-link {
