@@ -560,9 +560,24 @@ README: App structure
     const canvas = $("phaseCanvas");
     const frame = state.animation.frames[state.animation.frameIndex] || null;
     const trainingIndex = frame ? frame.trainingIndex : 0;
-    const stage = frame ? frame.stage : "inputs";
+    const stage = frame ? frame.stage : "idle";
     const snapshot = state.trainingSnapshots[trainingIndex];
     const stack = makeElement("div", "canvas-stack");
+    const stageRank = {
+      idle: 0,
+      inputs: 1,
+      hidden: 2,
+      outputs: 3,
+      backprop: 4
+    };
+
+    function hasReached(targetStage) {
+      return stageRank[stage] >= stageRank[targetStage];
+    }
+
+    function revealValue(targetStage, value) {
+      return hasReached(targetStage) ? value : "--";
+    }
 
     stack.appendChild(
       renderMetricGrid([
@@ -599,7 +614,15 @@ README: App structure
         text: "The model measures how wrong it was, then sends a correction backward."
       }
     ].forEach((item) => {
-      const stepCard = makeElement(`div`, `training-step${stage === item.key ? " active" : ""}`);
+      const classes = [
+        "training-step",
+        stage === item.key ? "active" : "",
+        hasReached(item.key) ? "seen" : "",
+        !hasReached(item.key) ? "is-muted" : ""
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const stepCard = makeElement("div", classes);
       stepCard.append(makeElement("strong", "", item.title), makeElement("span", "", item.text));
       stageFlow.appendChild(stepCard);
     });
@@ -607,6 +630,9 @@ README: App structure
     stack.appendChild(stageCard);
 
     const networkCard = makeElement("section", "visual-card");
+    if (stage === "idle") {
+      networkCard.classList.add("is-muted");
+    }
     const head = makeElement("div", "card-head");
     const stageLabelMap = {
       inputs: "Values entering network",
@@ -622,24 +648,24 @@ README: App structure
 
     const inputLayer = makeElement("div", "node-layer input");
     snapshot.pair.inputVector.forEach((value, index) => {
-      inputLayer.appendChild(makeNode(`input ${index + 1}`, value, stage === "inputs" ? "active" : ""));
+      inputLayer.appendChild(makeNode(`input ${index + 1}`, revealValue("inputs", value), stage === "inputs" ? "active" : ""));
     });
 
     const hiddenLayer = makeElement("div", "node-layer hidden");
     snapshot.hidden.forEach((value, index) => {
-      hiddenLayer.appendChild(makeNode(`hidden ${index + 1}`, value, stage === "hidden" ? "active" : ""));
+      hiddenLayer.appendChild(makeNode(`hidden ${index + 1}`, revealValue("hidden", value), stage === "hidden" ? "active" : ""));
     });
 
     const outputLayer = makeElement("div", "node-layer output");
     snapshot.output.forEach((value, index) => {
       const classes = [
         stage === "outputs" ? "active" : "",
-        index === snapshot.expectedIndex ? "expected" : "",
-        index === snapshot.predictedIndex ? "predicted" : ""
+        hasReached("outputs") && index === snapshot.expectedIndex ? "expected" : "",
+        hasReached("outputs") && index === snapshot.predictedIndex ? "predicted" : ""
       ]
         .filter(Boolean)
         .join(" ");
-      outputLayer.appendChild(makeNode(snapshot.outputLabels[index], value, classes));
+      outputLayer.appendChild(makeNode(snapshot.outputLabels[index], revealValue("outputs", value), classes));
     });
 
     board.append(inputLayer, hiddenLayer, outputLayer);
@@ -647,12 +673,28 @@ README: App structure
 
     const stats = makeElement("div", "stats-grid");
     [
-      { label: "Highest output", value: snapshot.outputLabels[snapshot.predictedIndex] },
-      { label: "Correct target", value: snapshot.outputLabels[snapshot.expectedIndex] },
-      { label: "Calculated loss", value: String(snapshot.loss) },
-      { label: "Correction signal", value: String(snapshot.errorSignal) }
+      {
+        label: "Highest output",
+        value: hasReached("outputs") ? snapshot.outputLabels[snapshot.predictedIndex] : "Waiting for output",
+        muted: !hasReached("outputs")
+      },
+      {
+        label: "Correct target",
+        value: hasReached("outputs") ? snapshot.outputLabels[snapshot.expectedIndex] : "Waiting for output",
+        muted: !hasReached("outputs")
+      },
+      {
+        label: "Calculated loss",
+        value: hasReached("backprop") ? String(snapshot.loss) : "Not calculated yet",
+        muted: !hasReached("backprop")
+      },
+      {
+        label: "Correction signal",
+        value: hasReached("backprop") ? String(snapshot.errorSignal) : "Not sent yet",
+        muted: !hasReached("backprop")
+      }
     ].forEach((item) => {
-      const stat = makeElement("div", "stat");
+      const stat = makeElement("div", `stat${item.muted ? " is-muted" : ""}`);
       stat.append(makeElement("span", "label", item.label), makeElement("span", "value", item.value));
       stats.appendChild(stat);
     });
@@ -660,14 +702,14 @@ README: App structure
 
     const weights = makeElement("div", "weight-grid");
     [
-      `w(in1->h1): ${snapshot.weightsIH[0][0]}`,
-      `w(in2->h2): ${snapshot.weightsIH[1][1]}`,
-      `w(in3->h3): ${snapshot.weightsIH[2][2]}`,
-      `w(h1->out1): ${snapshot.weightsHO[0][0]}`,
-      `w(h2->out2): ${snapshot.weightsHO[1][1]}`,
-      `w(h3->out3): ${snapshot.weightsHO[2][2]}`
+      `w(in1->h1): ${revealValue("backprop", snapshot.weightsIH[0][0])}`,
+      `w(in2->h2): ${revealValue("backprop", snapshot.weightsIH[1][1])}`,
+      `w(in3->h3): ${revealValue("backprop", snapshot.weightsIH[2][2])}`,
+      `w(h1->out1): ${revealValue("backprop", snapshot.weightsHO[0][0])}`,
+      `w(h2->out2): ${revealValue("backprop", snapshot.weightsHO[1][1])}`,
+      `w(h3->out3): ${revealValue("backprop", snapshot.weightsHO[2][2])}`
     ].forEach((text) => {
-      weights.appendChild(makeElement("div", "weight-item", text));
+      weights.appendChild(makeElement("div", `weight-item${hasReached("backprop") ? "" : " is-muted"}`, text));
     });
     networkCard.appendChild(weights);
     stack.appendChild(networkCard);

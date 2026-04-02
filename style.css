@@ -480,6 +480,11 @@ input[type="range"] {
   border: 1px solid rgba(146, 182, 236, 0.12);
 }
 
+.is-muted {
+  opacity: 0.45;
+  filter: saturate(0.6);
+}
+
 .training-flow {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -507,6 +512,13 @@ input[type="range"] {
 .training-step.active {
   background: rgba(61, 139, 253, 0.12);
   border-color: rgba(61, 139, 253, 0.3);
+  opacity: 1;
+  filter: none;
+}
+
+.training-step.seen {
+  border-color: rgba(146, 182, 236, 0.22);
+  opacity: 0.78;
 }
 
 .card-head {
