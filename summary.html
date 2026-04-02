@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model Summary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body data-page="phase" data-phase="summary">
+    <div class="site-shell">
+      <header class="top-banner">
+        <div>
+          <p class="eyebrow">Final Page</p>
+          <h1>Model Summary</h1>
+          <p class="lead">
+            A compact end screen with the main teaching stats from this toy system.
+          </p>
+        </div>
+      </header>
+
+      <main class="phase-player">
+        <section class="panel-flat token-text-panel">
+          <p class="eyebrow">Shared Text</p>
+          <div id="sharedTextDisplay" class="shared-text-display"></div>
+          <p class="helper-text token-note">
+            This summary is calculated from the same saved text used across the earlier pages.
+          </p>
+        </section>
+
+        <section class="main-stack">
+          <section class="panel-flat stage-card">
+            <div class="stage-head">
+              <div>
+                <p class="eyebrow">Overview</p>
+                <h2 id="visualTitle">Key model stats</h2>
+              </div>
+              <div class="meaning-box" id="meaningBox"></div>
+            </div>
+            <div id="phaseCanvas" class="phase-canvas" aria-live="polite"></div>
+          </section>
+        </section>
+      </main>
+
+      <section class="panel-flat bottom-controls summary-controls">
+        <div class="bottom-info">
+          <div class="bottom-copy">
+            <p class="eyebrow">Explanation</p>
+            <h2 id="phaseTitle">Model summary</h2>
+            <p id="phaseExplanation" class="helper-text bottom-explanation"></p>
+          </div>
+          <div class="status-group">
+            <div id="phaseStatus" class="chip">Summary</div>
+            <div id="phaseCounter" class="chip subtle">Complete</div>
+          </div>
+        </div>
+        <div class="progress-bar"><div id="phaseProgressBar" class="progress-fill" style="width: 100%"></div></div>
+      </section>
+
+      <nav class="pager-nav">
+        <a class="pager-link" href="./generation.html">← Previous: Generation</a>
+        <span class="pager-link disabled" aria-hidden="true">Next →</span>
+      </nav>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

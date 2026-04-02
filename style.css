@@ -388,6 +388,30 @@ input[type="range"] {
   align-items: end;
 }
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary-stat,
+.summary-note {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(146, 182, 236, 0.12);
+  background: rgba(11, 21, 40, 0.95);
+}
+
+.summary-notes {
+  display: grid;
+  gap: 12px;
+}
+
+.summary-note {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .generation-field {
   margin-bottom: 0;
 }
@@ -865,7 +889,8 @@ input[type="range"] {
   .metric-grid,
   .stats-grid,
   .weight-grid,
-  .generation-controls {
+  .generation-controls,
+  .summary-grid {
     grid-template-columns: 1fr;
   }
 

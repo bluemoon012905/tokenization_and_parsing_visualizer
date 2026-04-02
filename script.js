@@ -56,6 +56,14 @@ README: App structure
         "This page shows only the generation idea. Here the next-token choices are illustrated with a simple Markov chain built from the saved text.",
       meaning:
         "Generated text appears one token at a time, not all at once."
+    },
+    summary: {
+      title: "Model summary",
+      visualTitle: "Key model stats",
+      explanation:
+        "This page collects the most important teaching stats from the toy system in one place.",
+      meaning:
+        "These numbers are simplified educational summaries, not production model metrics."
     }
   };
 
@@ -434,6 +442,30 @@ README: App structure
     }
     state.generationHistory = history;
     return frames;
+  }
+
+  function summarizeState(state) {
+    const trainingSnapshots = buildTrainingSnapshots(state);
+    const averageLoss = trainingSnapshots.length
+      ? round(trainingSnapshots.reduce((sum, item) => sum + item.loss, 0) / trainingSnapshots.length, 2)
+      : 0;
+    const finalLoss = trainingSnapshots.length ? trainingSnapshots[trainingSnapshots.length - 1].loss : 0;
+    const markovStates = state.markovChain ? state.markovChain.size : 0;
+    const markovEdges = state.markovChain
+      ? [...state.markovChain.values()].reduce((sum, nextMap) => sum + nextMap.size, 0)
+      : 0;
+
+    return {
+      averageLoss,
+      finalLoss,
+      toyParameterCount: 18,
+      trainingSteps: trainingSnapshots.length,
+      tokenCount: state.tokens.length,
+      vocabularySize: state.vocabulary.length,
+      markovStates,
+      markovEdges,
+      promptLength: state.generationPrompt.length
+    };
   }
 
   function clearTimer(state) {
@@ -847,6 +879,59 @@ README: App structure
     canvas.appendChild(stack);
   }
 
+  function renderSummaryCanvas(state) {
+    const canvas = $("phaseCanvas");
+    const stack = makeElement("div", "canvas-stack");
+    const summary = summarizeState(state);
+
+    stack.appendChild(
+      renderMetricGrid([
+        { label: "Tokens", value: String(summary.tokenCount) },
+        { label: "Vocabulary", value: String(summary.vocabularySize) },
+        { label: "Toy parameters", value: String(summary.toyParameterCount) }
+      ])
+    );
+
+    const summaryCard = makeElement("section", "visual-card");
+    const summaryHead = makeElement("div", "card-head");
+    summaryHead.append(makeElement("h3", "", "Important stats"), makeElement("span", "", "Teaching-only metrics"));
+    summaryCard.appendChild(summaryHead);
+    const summaryGrid = makeElement("div", "summary-grid");
+    [
+      ["Average loss", String(summary.averageLoss)],
+      ["Final loss", String(summary.finalLoss)],
+      ["Training steps", String(summary.trainingSteps)],
+      ["Prompt length", String(summary.promptLength)],
+      ["Markov states", String(summary.markovStates)],
+      ["Markov transitions", String(summary.markovEdges)]
+    ].forEach(([label, value]) => {
+      const item = makeElement("div", "summary-stat");
+      item.append(makeElement("span", "label", label), makeElement("span", "value", value));
+      summaryGrid.appendChild(item);
+    });
+    summaryCard.appendChild(summaryGrid);
+    stack.appendChild(summaryCard);
+
+    const notesCard = makeElement("section", "visual-card");
+    const notesHead = makeElement("div", "card-head");
+    notesHead.append(makeElement("h3", "", "Why these matter"), makeElement("span", "", "Quick guide"));
+    notesCard.appendChild(notesHead);
+    const notes = makeElement("div", "summary-notes");
+    [
+      "Loss is the toy error signal used during training. Lower means the tiny network matched the targets more closely.",
+      "Parameter count is the number of tunable weights in this demo network.",
+      "Vocabulary size shows how many unique token types the saved text produced.",
+      "Markov states and transitions summarize how many token-to-token links were learned from the text."
+    ].forEach((text) => {
+      notes.appendChild(makeElement("div", "summary-note", text));
+    });
+    notesCard.appendChild(notes);
+    stack.appendChild(notesCard);
+
+    canvas.innerHTML = "";
+    canvas.appendChild(stack);
+  }
+
   function createEmptyState(message) {
     const box = makeElement("div", "empty-state");
     box.textContent = message;
@@ -891,8 +976,8 @@ README: App structure
     $("meaningBox").innerHTML = `<strong>What this means</strong><p>${meaning}</p>`;
 
     const visibleStep = state.animation.frames.length ? Math.max(0, state.animation.frameIndex + 1) : 0;
-    $("phaseCounter").textContent = `${visibleStep} / ${state.animation.frames.length}`;
-    $("phaseProgressBar").style.width = `${state.animation.frames.length ? (visibleStep / state.animation.frames.length) * 100 : 0}%`;
+    $("phaseCounter").textContent = phaseName === "summary" ? "Complete" : `${visibleStep} / ${state.animation.frames.length}`;
+    $("phaseProgressBar").style.width = `${phaseName === "summary" ? 100 : state.animation.frames.length ? (visibleStep / state.animation.frames.length) * 100 : 0}%`;
 
     if (!state.tokens.length) {
       $("phaseCanvas").innerHTML = "";
@@ -904,8 +989,10 @@ README: App structure
       renderTokenizationCanvas(state);
     } else if (phaseName === "training") {
       renderTrainingCanvas(state);
-    } else {
+    } else if (phaseName === "generation") {
       renderGenerationCanvas(state);
+    } else {
+      renderSummaryCanvas(state);
     }
   }
 
@@ -932,17 +1019,22 @@ README: App structure
         state.animation.frames = buildTokenizationFrames(state);
       } else if (phaseName === "training") {
         state.animation.frames = buildTrainingFrames(state);
-      } else {
+      } else if (phaseName === "generation") {
         state.animation.frames = buildGenerationFrames(state);
+      } else {
+        state.animation.frames = [];
       }
       state.animation.frameIndex = -1;
-      $("phaseStatus").textContent = "Ready";
+      $("phaseStatus").textContent = phaseName === "summary" ? "Summary" : "Ready";
       if ($("sharedTextDisplay")) {
         $("sharedTextDisplay").textContent = state.text;
       }
     }
 
     function renderSpeedButtons() {
+      if (!speedButtons) {
+        return;
+      }
       speedButtons.innerHTML = "";
       Object.keys(speedMap).forEach((speed) => {
         const button = makeElement("button", `speed-button${state.speed === speed ? " active" : ""}`, speed[0].toUpperCase() + speed.slice(1));
@@ -1022,33 +1114,35 @@ README: App structure
       });
     }
 
-    playButton.addEventListener("click", () => {
-      if (!state.animation.frames.length) {
-        buildFrames();
-      }
-      if (state.animation.frameIndex >= state.animation.frames.length - 1) {
-        state.animation.frameIndex = -1;
-      }
-      state.animation.playing = true;
-      $("phaseStatus").textContent = "Playing";
-      advanceFrame();
-    });
+    if (playButton && pauseButton && replayButton && stepButton) {
+      playButton.addEventListener("click", () => {
+        if (!state.animation.frames.length) {
+          buildFrames();
+        }
+        if (state.animation.frameIndex >= state.animation.frames.length - 1) {
+          state.animation.frameIndex = -1;
+        }
+        state.animation.playing = true;
+        $("phaseStatus").textContent = "Playing";
+        advanceFrame();
+      });
 
-    pauseButton.addEventListener("click", () => {
-      stop("Paused");
-    });
+      pauseButton.addEventListener("click", () => {
+        stop("Paused");
+      });
 
-    replayButton.addEventListener("click", replay);
+      replayButton.addEventListener("click", replay);
 
-    stepButton.addEventListener("click", () => {
-      if (state.animation.playing) {
-        return;
-      }
-      if (!state.animation.frames.length) {
-        buildFrames();
-      }
-      advanceFrame();
-    });
+      stepButton.addEventListener("click", () => {
+        if (state.animation.playing) {
+          return;
+        }
+        if (!state.animation.frames.length) {
+          buildFrames();
+        }
+        advanceFrame();
+      });
+    }
 
     buildFrames();
     renderSpeedButtons();
