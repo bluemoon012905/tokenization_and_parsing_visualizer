@@ -76,6 +76,14 @@ p {
   border-bottom: 1px solid var(--line);
 }
 
+body[data-page="home"] .top-banner,
+body[data-page="home"] .home-single,
+body[data-page="home"] .pager-nav {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
 .eyebrow {
   margin-bottom: 10px;
   text-transform: uppercase;
@@ -135,9 +143,43 @@ h2 {
   max-width: 760px;
 }
 
+body[data-page="home"] .button-row {
+  justify-content: center;
+}
+
 .phase-layout {
   grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
   align-items: start;
+}
+
+.tokenization-flow {
+  display: grid;
+  gap: 18px;
+}
+
+.phase-player {
+  display: grid;
+  gap: 18px;
+}
+
+.token-text-panel {
+  padding: 20px 24px;
+}
+
+.shared-text-display {
+  min-height: 88px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px solid rgba(146, 182, 236, 0.12);
+  background: rgba(7, 15, 29, 0.72);
+  color: var(--ink);
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.token-note {
+  margin-top: 12px;
+  margin-bottom: 0;
 }
 
 .control-card,
@@ -296,6 +338,67 @@ input[type="range"] {
   gap: 18px;
 }
 
+.bottom-controls {
+  margin-top: 18px;
+  padding: 18px 20px;
+}
+
+.bottom-info {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.bottom-copy {
+  max-width: 720px;
+}
+
+.bottom-explanation {
+  margin-bottom: 0;
+}
+
+.controls-row,
+.speed-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.speed-row {
+  margin-top: 14px;
+}
+
+.controls-label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.generation-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+  align-items: end;
+}
+
+.generation-field {
+  margin-bottom: 0;
+}
+
+.generation-toggle {
+  align-self: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 8px;
+}
+
 .status-row,
 .stage-head {
   display: flex;
@@ -375,6 +478,35 @@ input[type="range"] {
   border-radius: 22px;
   background: rgba(17, 29, 52, 0.78);
   border: 1px solid rgba(146, 182, 236, 0.12);
+}
+
+.training-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.training-step {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(146, 182, 236, 0.12);
+  background: rgba(11, 21, 40, 0.92);
+}
+
+.training-step strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.training-step span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.training-step.active {
+  background: rgba(61, 139, 253, 0.12);
+  border-color: rgba(61, 139, 253, 0.3);
 }
 
 .card-head {
@@ -559,6 +691,13 @@ input[type="range"] {
   margin-bottom: 10px;
 }
 
+.candidate-subtext {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 .candidate-bar {
   height: 10px;
   border-radius: 999px;
@@ -570,6 +709,60 @@ input[type="range"] {
   display: block;
   height: 100%;
   background: linear-gradient(90deg, var(--sky), var(--accent));
+}
+
+.markov-flow {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.markov-arrow {
+  color: var(--accent-strong);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.markov-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.markov-node,
+.markov-empty {
+  min-width: 150px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(146, 182, 236, 0.12);
+  background: rgba(11, 21, 40, 0.95);
+}
+
+.markov-node strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.markov-node span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.markov-node.current {
+  min-width: 170px;
+  background: rgba(61, 139, 253, 0.12);
+  border-color: rgba(61, 139, 253, 0.26);
+}
+
+.markov-node.chosen {
+  background: rgba(61, 139, 253, 0.12);
+  border-color: rgba(61, 139, 253, 0.3);
+}
+
+.markov-empty {
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .legend-chip {
@@ -641,19 +834,34 @@ input[type="range"] {
     padding: 18px;
   }
 
+  .controls-row,
+  .speed-row {
+    justify-content: stretch;
+  }
+
   .pager-nav {
     flex-direction: column;
     align-items: stretch;
   }
 
   .status-row,
-  .stage-head {
+  .stage-head,
+  .bottom-info {
     flex-direction: column;
   }
 
   .metric-grid,
   .stats-grid,
-  .weight-grid {
+  .weight-grid,
+  .generation-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .training-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .markov-flow {
     grid-template-columns: 1fr;
   }
 

@@ -53,7 +53,7 @@ README: App structure
       title: "Generation",
       visualTitle: "Choosing the next token",
       explanation:
-        "This page shows only the generation idea. The current context is used to score possible next tokens, choose one, and extend the output.",
+        "This page shows only the generation idea. Here the next-token choices are illustrated with a simple Markov chain built from the saved text.",
       meaning:
         "Generated text appears one token at a time, not all at once."
     }
@@ -185,7 +185,8 @@ README: App structure
   }
 
   function buildPhaseState() {
-    const text = $("inputText").value.trim() || getSavedText();
+    const input = $("inputText");
+    const text = input ? input.value.trim() || getSavedText() : getSavedText();
     saveText(text);
 
     const tokens = tokenizeText(text);
@@ -199,6 +200,7 @@ README: App structure
       tokens,
       vocabulary,
       tokenIds,
+      markovChain: buildMarkovChain(tokens),
       generationPrompt: prompt.length ? prompt : ["Start"],
       generationLength: Number($("lengthSlider") ? $("lengthSlider").value : 6),
       temperature: Number($("temperatureSlider") ? $("temperatureSlider").value : 0.6),
@@ -211,6 +213,44 @@ README: App structure
         frames: []
       }
     };
+  }
+
+  function buildMarkovChain(tokens) {
+    const chain = new Map();
+    const cleaned = tokens
+      .map((token) => token.toLowerCase())
+      .filter((token) => /[a-z0-9']/.test(token));
+
+    for (let index = 0; index < cleaned.length - 1; index += 1) {
+      const current = cleaned[index];
+      const next = cleaned[index + 1];
+      if (!chain.has(current)) {
+        chain.set(current, new Map());
+      }
+      const nextMap = chain.get(current);
+      nextMap.set(next, (nextMap.get(next) || 0) + 1);
+    }
+
+    return chain;
+  }
+
+  function getMarkovCandidates(state, context) {
+    const current = context[context.length - 1]?.toLowerCase() || "";
+    const nextMap = state.markovChain?.get(current);
+
+    if (!nextMap || !nextMap.size) {
+      return [];
+    }
+
+    const total = [...nextMap.values()].reduce((sum, value) => sum + value, 0) || 1;
+    return [...nextMap.entries()]
+      .map(([token, count]) => ({
+        token,
+        count,
+        markovProbability: round(count / total, 2)
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
   }
 
   function buildTrainingSnapshots(state) {
@@ -288,6 +328,8 @@ README: App structure
   }
 
   function scoreCandidates(state, context, stepNumber) {
+    const markovCandidates = getMarkovCandidates(state, context);
+    const markovMap = new Map(markovCandidates.map((item) => [item.token, item]));
     const basePool = [...new Set([...state.tokens.map((token) => token.toLowerCase()), "the", "model", "learns", "patterns", "next", "token", "context"])]
       .filter((token) => /[a-z0-9']/.test(token))
       .slice(0, 8);
@@ -308,14 +350,27 @@ README: App structure
       if (token.includes("learn") || token.includes("pattern")) {
         score += 0.08;
       }
+      if (markovMap.has(token)) {
+        score += markovMap.get(token).markovProbability * 0.45;
+      }
       score += seededRandom(stepNumber * 19 + index + state.text.length) * 0.18;
       score += clamp(state.temperature, 0, 1) * 0.06;
-      return { token, score };
+      return {
+        token,
+        score,
+        count: markovMap.get(token)?.count || 0,
+        markovProbability: markovMap.get(token)?.markovProbability || 0
+      };
     });
 
     const total = scored.reduce((sum, item) => sum + item.score, 0) || 1;
     return scored
-      .map((item) => ({ token: item.token, probability: round(item.score / total, 2) }))
+      .map((item) => ({
+        token: item.token,
+        probability: round(item.score / total, 2),
+        count: item.count,
+        markovProbability: item.markovProbability
+      }))
       .sort((a, b) => b.probability - a.probability)
       .slice(0, 4);
   }
@@ -517,9 +572,49 @@ README: App structure
       ])
     );
 
+    const stageCard = makeElement("section", "visual-card");
+    const stageHead = makeElement("div", "card-head");
+    stageHead.append(makeElement("h3", "", "Training flow"), makeElement("span", "", "Forward pass, then loss and correction"));
+    stageCard.appendChild(stageHead);
+    const stageFlow = makeElement("div", "training-flow");
+    [
+      {
+        key: "inputs",
+        title: "1. Push input values up",
+        text: "The current token becomes small numbers and enters the network."
+      },
+      {
+        key: "hidden",
+        title: "2. Mix values in hidden nodes",
+        text: "Those values are combined into intermediate activations."
+      },
+      {
+        key: "outputs",
+        title: "3. Output prediction values",
+        text: "The output layer produces scores for possible next tokens."
+      },
+      {
+        key: "backprop",
+        title: "4. Calculate loss and push correction back",
+        text: "The model measures how wrong it was, then sends a correction backward."
+      }
+    ].forEach((item) => {
+      const stepCard = makeElement(`div`, `training-step${stage === item.key ? " active" : ""}`);
+      stepCard.append(makeElement("strong", "", item.title), makeElement("span", "", item.text));
+      stageFlow.appendChild(stepCard);
+    });
+    stageCard.appendChild(stageFlow);
+    stack.appendChild(stageCard);
+
     const networkCard = makeElement("section", "visual-card");
     const head = makeElement("div", "card-head");
-    head.append(makeElement("h3", "", "Tiny network"), makeElement("span", "", `${snapshot.pair.token} -> ${snapshot.pair.nextToken}`));
+    const stageLabelMap = {
+      inputs: "Values entering network",
+      hidden: "Values moving upward through hidden layer",
+      outputs: "Output values being produced",
+      backprop: "Loss calculated, correction moving backward"
+    };
+    head.append(makeElement("h3", "", "Tiny network"), makeElement("span", "", stageLabelMap[stage]));
     networkCard.appendChild(head);
 
     const board = makeElement("div", "network-board");
@@ -552,10 +647,10 @@ README: App structure
 
     const stats = makeElement("div", "stats-grid");
     [
-      { label: "Predicted", value: snapshot.outputLabels[snapshot.predictedIndex] },
-      { label: "Expected", value: snapshot.outputLabels[snapshot.expectedIndex] },
-      { label: "Loss", value: String(snapshot.loss) },
-      { label: "Backprop signal", value: String(snapshot.errorSignal) }
+      { label: "Highest output", value: snapshot.outputLabels[snapshot.predictedIndex] },
+      { label: "Correct target", value: snapshot.outputLabels[snapshot.expectedIndex] },
+      { label: "Calculated loss", value: String(snapshot.loss) },
+      { label: "Correction signal", value: String(snapshot.errorSignal) }
     ].forEach((item) => {
       const stat = makeElement("div", "stat");
       stat.append(makeElement("span", "label", item.label), makeElement("span", "value", item.value));
@@ -579,7 +674,7 @@ README: App structure
 
     const legend = makeElement("section", "visual-card");
     const legendHead = makeElement("div", "card-head");
-    legendHead.append(makeElement("h3", "", "Legend"), makeElement("span", "", "Highlight meaning"));
+    legendHead.append(makeElement("h3", "", "Legend"), makeElement("span", "", "How to read the network"));
     legend.appendChild(legendHead);
     const legendRow = makeElement("div", "legend-row");
     [
@@ -638,9 +733,49 @@ README: App structure
     outputCard.appendChild(row);
     stack.appendChild(outputCard);
 
+    const activeContext = history
+      ? [...state.generationPrompt, ...history.output.slice(0, Math.max(0, history.output.length - 1))]
+      : state.generationPrompt;
+    const currentToken =
+      activeContext[activeContext.length - 1]?.toLowerCase() ||
+      state.generationPrompt[0]?.toLowerCase() ||
+      "start";
+    const transitionCandidates = getMarkovCandidates(state, activeContext);
+
+    const markovCard = makeElement("section", "visual-card");
+    const markovHead = makeElement("div", "card-head");
+    markovHead.append(makeElement("h3", "", "Markov chain view"), makeElement("span", "", `${currentToken} -> next token`));
+    markovCard.appendChild(markovHead);
+
+    const markovFlow = makeElement("div", "markov-flow");
+    const currentNode = makeElement("div", "markov-node current");
+    currentNode.innerHTML = `<span class="label">Current token</span><strong>${currentToken}</strong>`;
+    markovFlow.appendChild(currentNode);
+    markovFlow.appendChild(makeElement("div", "markov-arrow", "->"));
+
+    const targetList = makeElement("div", "markov-targets");
+    if (transitionCandidates.length) {
+      transitionCandidates.forEach((item) => {
+        const target = makeElement("div", `markov-node${history && item.token === history.chosen ? " chosen" : ""}`);
+        target.innerHTML = `<strong>${item.token}</strong><span>${Math.round(item.markovProbability * 100)}% from source text</span>`;
+        targetList.appendChild(target);
+      });
+    } else {
+      targetList.appendChild(
+        makeElement(
+          "div",
+          "markov-empty",
+          "No exact transition was found in the source text, so the demo falls back to broader scoring."
+        )
+      );
+    }
+    markovFlow.appendChild(targetList);
+    markovCard.appendChild(markovFlow);
+    stack.appendChild(markovCard);
+
     const candidates = makeElement("section", "visual-card");
     const candidateHead = makeElement("div", "card-head");
-    candidateHead.append(makeElement("h3", "", "Candidate next tokens"), makeElement("span", "", "Scored choices"));
+    candidateHead.append(makeElement("h3", "", "Candidate next tokens"), makeElement("span", "", "Markov-informed choices"));
     candidates.appendChild(candidateHead);
     const list = makeElement("div", "candidate-list");
     const visibleCandidates = history ? history.candidates : scoreCandidates(state, state.generationPrompt, 1);
@@ -651,11 +786,16 @@ README: App structure
       }
       const top = makeElement("div", "candidate-top");
       top.append(makeElement("strong", "", item.token), makeElement("span", "", `${Math.round(item.probability * 100)}%`));
+      const sub = makeElement(
+        "div",
+        "candidate-subtext",
+        item.count ? `Seen ${item.count} time${item.count === 1 ? "" : "s"} after the current token` : "Suggested by broader demo scoring"
+      );
       const bar = makeElement("div", "candidate-bar");
       const fill = makeElement("span", "");
       fill.style.width = `${Math.round(item.probability * 100)}%`;
       bar.appendChild(fill);
-      card.append(top, bar);
+      card.append(top, sub, bar);
       list.appendChild(card);
     });
     candidates.appendChild(list);
@@ -688,15 +828,15 @@ README: App structure
     if (phaseName === "training" && frame && state.trainingSnapshots.length) {
       const snapshot = state.trainingSnapshots[frame.trainingIndex];
       if (frame.stage === "inputs") {
-        explanation = `The token "${snapshot.pair.token}" becomes a few toy numeric features.`;
+        explanation = `The token "${snapshot.pair.token}" becomes a few toy numeric values, and those values are pushed upward into the network.`;
       } else if (frame.stage === "hidden") {
-        explanation = "The hidden layer combines those inputs into intermediate activations.";
+        explanation = "The hidden layer mixes those incoming values into intermediate activations.";
       } else if (frame.stage === "outputs") {
-        explanation = `The network predicts a next token and compares it with "${snapshot.pair.nextToken}".`;
+        explanation = `The network outputs prediction values, and the highest one is compared with the correct target "${snapshot.pair.nextToken}".`;
       } else {
-        explanation = "The error signal travels backward and nudges the weights.";
+        explanation = "The model calculates loss from the mistake, then backpropagation sends a correction backward to adjust the weights.";
       }
-      meaning = meta.meaning;
+      meaning = "Forward steps push values upward to produce an output. Backpropagation uses the calculated loss to push a correction back through the network.";
     }
 
     if (phaseName === "generation" && frame && state.generationHistory.length) {
@@ -728,8 +868,10 @@ README: App structure
   }
 
   function setupPhasePage() {
-    fillPresetSelect($("presetSelect"));
-    setupSharedTextControls();
+    if ($("inputText")) {
+      fillPresetSelect($("presetSelect"));
+      setupSharedTextControls();
+    }
 
     const state = buildPhaseState();
     const speedButtons = $("speedButtons");
@@ -739,7 +881,8 @@ README: App structure
     const stepButton = $("stepButton");
 
     function buildFrames() {
-      state.text = $("inputText").value.trim() || getSavedText();
+      const input = $("inputText");
+      state.text = input ? input.value.trim() || getSavedText() : getSavedText();
       saveText(state.text);
       const fresh = buildPhaseState();
       Object.assign(state, fresh);
@@ -752,6 +895,9 @@ README: App structure
       }
       state.animation.frameIndex = -1;
       $("phaseStatus").textContent = "Ready";
+      if ($("sharedTextDisplay")) {
+        $("sharedTextDisplay").textContent = state.text;
+      }
     }
 
     function renderSpeedButtons() {
@@ -793,19 +939,21 @@ README: App structure
       renderPhasePage(state);
     }
 
-    $("inputText").addEventListener("input", () => {
-      $("saveStatus").textContent = "Unsaved changes.";
-    });
+    if ($("inputText")) {
+      $("inputText").addEventListener("input", () => {
+        $("saveStatus").textContent = "Unsaved changes.";
+      });
 
-    $("saveTextButton").addEventListener("click", () => {
-      buildFrames();
-      renderPhasePage(state);
-    });
+      $("saveTextButton").addEventListener("click", () => {
+        buildFrames();
+        renderPhasePage(state);
+      });
 
-    $("resetTextButton").addEventListener("click", () => {
-      buildFrames();
-      renderPhasePage(state);
-    });
+      $("resetTextButton").addEventListener("click", () => {
+        buildFrames();
+        renderPhasePage(state);
+      });
+    }
 
     if ($("lengthSlider")) {
       $("lengthValue").textContent = $("lengthSlider").value;
