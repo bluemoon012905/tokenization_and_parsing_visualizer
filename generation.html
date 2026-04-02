@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generation Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body data-page="phase" data-phase="generation">
+    <div class="site-shell">
+      <header class="top-banner">
+        <div>
+          <p class="eyebrow">Phase 3</p>
+          <h1>Generation</h1>
+          <p class="lead">
+            The system scores candidate next tokens, picks one, appends it, and
+            repeats. This page only shows that loop.
+          </p>
+        </div>
+      </header>
+
+      <main class="phase-layout">
+        <aside class="panel-flat sidebar-card">
+          <section class="panel-block">
+            <div class="section-head">
+              <p class="eyebrow">Input</p>
+              <h2>Shared text</h2>
+            </div>
+            <label class="field">
+              <span>Preset examples</span>
+              <select id="presetSelect"></select>
+            </label>
+            <label class="field">
+              <span>Input text</span>
+              <textarea id="inputText" rows="8"></textarea>
+            </label>
+            <div class="button-row">
+              <button id="saveTextButton" class="button primary" type="button">Save Text</button>
+              <button id="resetTextButton" class="button secondary" type="button">Reset</button>
+            </div>
+            <p class="helper-text" id="saveStatus"></p>
+          </section>
+
+          <section class="panel-block">
+            <div class="section-head">
+              <p class="eyebrow">Controls</p>
+              <h2>Animation</h2>
+            </div>
+            <div class="button-grid">
+              <button id="playButton" class="button primary" type="button">Play</button>
+              <button id="pauseButton" class="button secondary" type="button">Pause</button>
+              <button id="replayButton" class="button secondary" type="button">Replay</button>
+              <button id="stepButton" class="button secondary" type="button">Step</button>
+            </div>
+            <div class="field compact">
+              <span>Speed</span>
+              <div id="speedButtons" class="speed-buttons"></div>
+            </div>
+            <div class="field compact">
+              <div class="field-head">
+                <span>Generation length</span>
+                <strong id="lengthValue">6</strong>
+              </div>
+              <input id="lengthSlider" type="range" min="3" max="12" step="1" value="6" />
+            </div>
+            <div class="field compact">
+              <div class="field-head">
+                <span>Creativity / temperature</span>
+                <strong id="temperatureValue">0.6</strong>
+              </div>
+              <input id="temperatureSlider" type="range" min="0" max="1" step="0.1" value="0.6" />
+            </div>
+            <label class="toggle-row">
+              <input id="randomToggle" type="checkbox" />
+              <span>Use random sampling</span>
+            </label>
+          </section>
+        </aside>
+
+        <section class="main-stack">
+          <section class="panel-flat explanation-card">
+            <div class="status-row">
+              <div>
+                <p class="eyebrow">Explanation</p>
+                <h2 id="phaseTitle">Generation</h2>
+              </div>
+              <div class="status-group">
+                <div id="phaseStatus" class="chip">Ready</div>
+                <div id="phaseCounter" class="chip subtle">0 / 0</div>
+              </div>
+            </div>
+            <p id="phaseExplanation" class="lead compact-lead"></p>
+            <div class="progress-bar"><div id="phaseProgressBar" class="progress-fill"></div></div>
+          </section>
+
+          <section class="panel-flat stage-card">
+            <div class="stage-head">
+              <div>
+                <p class="eyebrow">What This Means</p>
+                <h2 id="visualTitle">Choosing the next token</h2>
+              </div>
+              <div class="meaning-box" id="meaningBox"></div>
+            </div>
+            <div id="phaseCanvas" class="phase-canvas" aria-live="polite"></div>
+          </section>
+        </section>
+      </main>
+
+      <nav class="pager-nav">
+        <a class="pager-link" href="./training.html">← Previous: Training</a>
+        <span class="pager-link disabled" aria-hidden="true">Next →</span>
+      </nav>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

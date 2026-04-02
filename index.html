@@ -3,81 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tokenization and Parsing Visualizer</title>
+    <title>Simple Generative AI Demo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./style.css" />
   </head>
-  <body>
-    <div class="page-shell">
-      <aside class="control-panel">
-        <div class="eyebrow">Presentation Sandbox</div>
-        <h1>Tokenization and Parsing Visualizer</h1>
-        <p class="lede">
-          A static demo surface for explaining how text gets segmented, encoded,
-          predicted, and reconstructed.
+  <body data-page="home">
+    <div class="site-shell">
+      <header class="top-banner">
+        <p class="eyebrow">Simple Generative AI Demo</p>
+        <h1>Start with the input text</h1>
+        <p class="lead">
+          Save your text here, then move through the next pages one at a time:
+          tokenization, training, and generation.
         </p>
+      </header>
 
-        <label class="field">
-          <span>Input text</span>
-          <textarea id="sourceText" rows="6">
-The curious robot studied language models to predict the missing word and continue the next phrase.</textarea
-          >
-        </label>
-
-        <div class="field">
-          <span>Scene</span>
-          <div class="scene-tabs" id="sceneTabs"></div>
-        </div>
-
-        <div class="button-row">
-          <button id="renderButton" class="button button-primary">Render Scene</button>
-          <button id="resetButton" class="button">Reset Frames</button>
-          <button id="prevFrameButton" class="button">Previous Frame</button>
-          <button id="nextFrameButton" class="button">Next Frame</button>
-        </div>
-
-        <section class="assumption-card">
-          <h2>Current Assumptions</h2>
-          <ul id="assumptionList"></ul>
-        </section>
-      </aside>
-
-      <main class="stage-panel">
-        <header class="stage-header">
-          <div>
-            <div class="eyebrow">Live View</div>
-            <h2 id="sceneTitle">Tokenization Strategies</h2>
-          </div>
-          <p id="sceneSubtitle" class="scene-subtitle"></p>
-        </header>
-
-        <section class="stage-grid">
-          <div class="stage-card stage-card-large">
-            <div class="card-header">
-              <h3>Visualization</h3>
-              <div id="stepBadge" class="step-badge">Ready</div>
-            </div>
-            <button id="visualizationLink" class="visualization-link" type="button">
-              <span class="visualization-link-label">Open this rendered animation as a page</span>
-              <div id="visualizationStage" class="visualization-stage"></div>
-            </button>
+      <main class="home-single">
+        <section class="panel-flat control-card">
+          <div class="section-head">
+            <p class="eyebrow">Input</p>
+            <h2>Choose text once</h2>
           </div>
 
-          <div class="stage-card">
-            <div class="card-header">
-              <h3>Animation Timeline</h3>
-            </div>
-            <ol id="timelineList" class="timeline-list"></ol>
+          <label class="field">
+            <span>Preset examples</span>
+            <select id="presetSelect">
+              <option value="story">Story sentence</option>
+              <option value="science">Science sentence</option>
+              <option value="chat">Chat example</option>
+              <option value="poetry">Poetry line</option>
+              <option value="code">Code description</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Input text</span>
+            <textarea id="inputText" rows="8"></textarea>
+          </label>
+
+          <div class="button-row">
+            <button id="saveTextButton" class="button primary" type="button">Save Text</button>
+            <button id="resetTextButton" class="button secondary" type="button">Reset</button>
           </div>
+
+          <p class="helper-text" id="saveStatus">
+            Save your text, then continue to the next page.
+          </p>
         </section>
       </main>
+
+      <nav class="pager-nav">
+        <span class="pager-link disabled" aria-hidden="true">← Previous</span>
+        <a class="pager-link" href="./tokenization.html">Next: Tokenization →</a>
+      </nav>
     </div>
 
-    <script type="module" src="./src/app.js"></script>
+    <script src="./script.js"></script>
   </body>
 </html>
