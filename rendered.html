@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rendered Animation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="standalone-shell">
+      <header class="stage-header">
+        <div>
+          <div class="eyebrow">Rendered Animation</div>
+          <h1 id="sceneTitle">Tokenization Strategies</h1>
+        </div>
+        <p id="sceneSubtitle" class="scene-subtitle"></p>
+      </header>
+
+      <section class="stage-grid standalone-stage">
+        <div class="stage-card stage-card-large">
+          <div class="card-header">
+            <h3>Visualization</h3>
+            <div id="stepBadge" class="step-badge">Ready</div>
+          </div>
+          <div id="visualizationStage" class="visualization-stage"></div>
+        </div>
+
+        <div class="stage-card">
+          <div class="card-header">
+            <h3>Animation Timeline</h3>
+          </div>
+          <ol id="timelineList" class="timeline-list"></ol>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/rendered.js"></script>
+  </body>
+</html>

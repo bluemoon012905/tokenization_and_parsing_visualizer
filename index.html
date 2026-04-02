@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tokenization and Parsing Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="control-panel">
+        <div class="eyebrow">Presentation Sandbox</div>
+        <h1>Tokenization and Parsing Visualizer</h1>
+        <p class="lede">
+          A static demo surface for explaining how text gets segmented, encoded,
+          predicted, and reconstructed.
+        </p>
+
+        <label class="field">
+          <span>Input text</span>
+          <textarea id="sourceText" rows="6">
+The curious robot studied language models to predict the missing word and continue the next phrase.</textarea
+          >
+        </label>
+
+        <div class="field">
+          <span>Scene</span>
+          <div class="scene-tabs" id="sceneTabs"></div>
+        </div>
+
+        <div class="button-row">
+          <button id="renderButton" class="button button-primary">Render Scene</button>
+          <button id="resetButton" class="button">Reset Frames</button>
+          <button id="prevFrameButton" class="button">Previous Frame</button>
+          <button id="nextFrameButton" class="button">Next Frame</button>
+        </div>
+
+        <section class="assumption-card">
+          <h2>Current Assumptions</h2>
+          <ul id="assumptionList"></ul>
+        </section>
+      </aside>
+
+      <main class="stage-panel">
+        <header class="stage-header">
+          <div>
+            <div class="eyebrow">Live View</div>
+            <h2 id="sceneTitle">Tokenization Strategies</h2>
+          </div>
+          <p id="sceneSubtitle" class="scene-subtitle"></p>
+        </header>
+
+        <section class="stage-grid">
+          <div class="stage-card stage-card-large">
+            <div class="card-header">
+              <h3>Visualization</h3>
+              <div id="stepBadge" class="step-badge">Ready</div>
+            </div>
+            <button id="visualizationLink" class="visualization-link" type="button">
+              <span class="visualization-link-label">Open this rendered animation as a page</span>
+              <div id="visualizationStage" class="visualization-stage"></div>
+            </button>
+          </div>
+
+          <div class="stage-card">
+            <div class="card-header">
+              <h3>Animation Timeline</h3>
+            </div>
+            <ol id="timelineList" class="timeline-list"></ol>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
