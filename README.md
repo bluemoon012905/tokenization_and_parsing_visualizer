@@ -1,6 +1,7 @@
 # Tokenization and Parsing Visualizer
 
 A static, GitHub Pages-friendly presentation app for showing how NLP-style text processing works.
+https://bluemoon012905.github.io/tokenization_and_parsing_visualizer/
 
 ## What is in the scaffold
 
